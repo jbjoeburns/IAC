@@ -17,7 +17,7 @@ Orchestration is an aspect of IaS that focusses on managing and coordinating dep
 
 Essentially congifuration management but can be done on many instances over an entire ASG for example.
 
-# Diagram of IaS setup
+# Diagram of IaC setup
 
 ![ansiblescrsh.png](ansiblescrsh.png)
 
