@@ -32,6 +32,10 @@ sudo apt install ansible -y
 
 ![Alt text](ansibleversion.png)
 
-6. Repeating this process with 2 other instances should give us the following...
+6. Make sure the user has access to the pem file too with `sudo chmod 400 file.pem`.
+
+7. Repeating this process with 2 other instances should give us the following...
 
 ![Alt text](3instance.png)
+
+We can repeat this process to make any number of Ansible instances!
