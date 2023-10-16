@@ -26,4 +26,12 @@ sudo apt install ansible -y
 
 3. Open another git bash and type `scp -i "~/.ssh/tech254.pem" ~/.ssh/tech254.pem ubuntu@<instance IP>:~/.ssh` (change to include the IP of your instance) to provide Ansible with the AWS pem file so it can SSH into instances
 
-4. Optional step to install tree (just makes working with files easier) ` sudo apt install tree -y`
+4. Optional step to install tree (just makes working with files easier) `sudo apt install tree -y`
+
+5. Check Ansible version with `ansible --version` and we should see something like this, confirming the install was successful!
+
+![Alt text](ansibleversion.png)
+
+6. Repeating this process with 2 other instances should give us the following...
+
+![Alt text](3instance.png)
