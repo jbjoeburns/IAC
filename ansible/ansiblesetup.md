@@ -280,6 +280,26 @@ In the previous section we changed bindIP in the mongoDB config file. So, for ou
       service: name=nginx state=restarted
 ```
 
+3. To perminently set an environment variable, use `lineinfile` in the same way as shown in the mongo bindIP config file change, but on the file `/home/ubuntu/.bashrc` and add the line `DB_HOST: mongodb://34.252.133.230:27017/`. We will need to do this if **we're setting up the app instance for deployment of our actual app**.
+- `line: ''` inserts at the bottom of the file
+
+---
+- hosts: app
+  gather_facts: yes
+  become: true
+  tasks:
+  - name: Change mongodb bindIP
+    ansible.builtin.lineinfile:
+      path: /home/ubuntu/.bashrc
+      search_string: bind_ip = DB_HOST: mongodb://34.252.133.230:27017/
+      line: ''
+  handlers:
+  - name: restart mongodb
+    service: name=mongodb state=restarted
+```
+
 To start app:
 
 sudo ansible app -a "pm2 start /home/ubuntu/app/app/app.js"
+
+We dont need app starting functionality in our actual playbook, as this will be handled by tools like **Jenkins**.
