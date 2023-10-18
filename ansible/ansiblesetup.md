@@ -2,7 +2,7 @@
 
 Ansible is a powerful tool that allows you to connect to, and control many different instances at once and execute an automated list of commands using something called playbooks.
 
-It is obvious why this is useful, not only can it be used to automate changes to config files/packages/files/etc, it also has the ability to do this to an entire web of servers automatically by reading a list of IPs from it's host file.
+It is obvious why this is useful, not only can it be used to automate changes to config files/packages/files/etc, it also has the ability to do this to an entire web of servers automatically by reading a list of IPs from it's host file. However, it's primary practical use is to install packages/edit configs necessary for a deployment.
 
 It has a range of other powerful uses, shown in the diagram below that illustrates the structure of an Ansible system.
 
@@ -280,7 +280,7 @@ In the previous section we changed bindIP in the mongoDB config file. So, for ou
       service: name=nginx state=restarted
 ```
 
-3. To perminently set an environment variable, use `lineinfile` in the same way as shown in the mongo bindIP config file change, but on the file `/home/ubuntu/.bashrc` and add the line `DB_HOST: mongodb://34.252.133.230:27017/`. We will need to do this if **we're setting up the app instance for deployment of our actual app**.
+3. To permanently set an environment variable, use `lineinfile` in the same way as shown in the mongo bindIP config file change, but on the file `/home/ubuntu/.bashrc` and add the line `DB_HOST: mongodb://34.252.133.230:27017/`. We will need to do this if **we're setting up the app instance for deployment of our actual app**.
 - `line: ''` inserts at the bottom of the file
 
 ---
