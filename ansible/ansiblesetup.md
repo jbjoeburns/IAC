@@ -283,6 +283,7 @@ In the previous section we changed bindIP in the mongoDB config file. So, for ou
 3. To permanently set an environment variable, use `lineinfile` in the same way as shown in the mongo bindIP config file change, but on the file `/home/ubuntu/.bashrc` and add the line `DB_HOST: mongodb://34.252.133.230:27017/`. We will need to do this if **we're setting up the app instance for deployment of our actual app**.
 - `line: ''` inserts at the bottom of the file
 
+```
 ---
 - hosts: app
   gather_facts: yes
