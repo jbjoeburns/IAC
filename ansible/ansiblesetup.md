@@ -39,6 +39,7 @@ sudo apt install ansible -y
 ```
 
 3. Open another git bash and type `scp -i "~/.ssh/tech254.pem" ~/.ssh/tech254.pem ubuntu@<instance IP>:~/.ssh` (change to include the IP of your instance) to provide Ansible with the AWS pem file so it can SSH into instances
+- **Remember to `chmod400` your pem file!**
 
 4. Optional step to install tree (just makes working with files easier) `sudo apt install tree -y`
 
@@ -52,17 +53,19 @@ Can connect to other instances while IN the ansible instance by using standard s
 
 1. We need to provide info about our agents in the hosts file.
 
-`sudo nano hosts`
+Hosts file is in the directory `/etc/ansible/`
 
-2. Can add IP for who you want to ping in hosts.
+Then when in it, use `sudo nano hosts`
+
+2. Can add IP for who you want to ping in hosts. Can add one for the db too!
 
 ```
-[web]
-
-ec2-instance ansible_host=<IP> ansible_user=ubuntu ansible_ssh_private_key_fule=ubuntu/home/.ssh/<pem file>
+[app]
+ec2-instance-app ansible_host=<IP> ansible_user=ubuntu ansible_ssh_private_key_file=/home/ubuntu/.ssh/<pem file>
 ```
+- `ec2-instance-<x>` Important that you put a name where x is or ansible will get confused about which instance to target, eg. app or db
 
-- `ec2-instance ansible_host` denotes the IP
+- `ansible_host` denotes the IP
 
 - `ansible_user=ubuntu` denotes the user we want to ssh as (eg. ubuntu rather than root)
 
@@ -128,6 +131,16 @@ An example of how you make these playbooks (playbook to install nginx)...
 ```
 - yaml files require `---` at the start so the system knows to treat these as yaml files
 
+4. To run the playbook use `sudo ansible-playbook mongo-playbook.yml` and we should get an output like this, it shows that connection was ok and files were changed.
+
+![Alt text](completeprovision.png)
+
+5. To confirm 100%, you can check the status using adhoc commands! Eg. in the case of mongo you can use `sudo ansible web -a "sudo systemctl status mongodb"`
+
+# Other useful playbooks
+
+**Remember to change the 'hosts' to the appropriate host in your case!**
+
 Blocker: If you get error `E:Malformed entry` then delete the offending file (it will be named in the error) on the agent.
 
 Playbook to do this:
@@ -142,13 +155,10 @@ Playbook to do this:
       state: absent
       path: <path for offending file>
 ```
-
-# Other useful playbooks
-
-Update/upgrade:
+Update/upgrade all:
 ```
 ---
-- hosts: web
+- hosts: all
   gather_facts: yes
   become: true
   tasks:
@@ -158,21 +168,118 @@ Update/upgrade:
       update_cache: yes
 ```
 
-Install nodeJS:
+Install nginx:
 ```
 ---
 - hosts: web
   gather_facts: yes
   become: true
   tasks:
-  - name: Get key
-    apt_key:
-      url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
-      state: present
-  - name: Add nodejs v12
-    apt_repository:
-      repo: deb https://deb.nodesource.com/node_12.x bionic main
-      update_cache: yes
-  - name: install nodejs
-    apt: update_cache=yes state=present
+  - name: provision nginx
+    apt: pkg=nginx state=present
 ```
+
+Install nodeJS:
+```
+---
+- hosts: app
+  gather_facts: yes
+  become: true
+  tasks:
+  - name: install curl
+    apt:
+      name: curl
+      state: present
+  - name: get key
+    shell: curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash
+    args:
+      warn: false
+  - name: install nodejs
+    apt:
+      name: nodejs
+      state: present
+      update_cache: yes
+
+```
+
+Install mongodb:
+```
+---
+- hosts: db
+  gather_facts: yes
+  become: true
+  tasks:
+  - name: updatemongo
+    apt: pkg=mongodb state=present
+```
+
+# Using playbooks to configure files
+
+Playbooks aren't exclusively used for installations. We can also use them to configure files.
+
+A good example of this is configuring the bindIP for mongoDB.
+
+Pre-steps: Make sure to **make an instance for your mongoDB** that has ports **27017** and **22** open (for mongo and ssh respectively) and **install mongoDB** (the playbook for this is listed in the useful playbooks section of this document).
+
+1. Create a new playbook with an appropriate name. `sudo nano mongodb-bindip.yml` will suffice.
+
+2. Codify the steps we need to edit the bindIP in the config file.
+- We will use the **lineinfile** module for ansible as this allows us to change a single line in a file, which is appropriate as we only need to change the bindIP line. This is line **12** of the config file.
+- We also want `become: true` since we will need to execute this as superuser.
+- `path` = Destination of file being edited (filepath).
+- `search_string` = String to search for in the file.
+- `regexp` = Regular expression for the substitution we'll be doing. We won't use this here but it's useful to know.
+- `line` = The line we will be inserting.
+- More info on module here: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/lineinfile_module.html
+
+3. Additionally, we want to include `handlers` at the bottom. This essentially restarts mongodb by selecting the service then changing state to restarted. We use handlers rather than tasks for this as it only restarts if required, and is best practice!
+
+```
+---
+- hosts: db
+  gather_facts: yes
+  become: true
+  tasks:
+  - name: Change mongodb bindIP
+    ansible.builtin.lineinfile:
+      path: /etc/mongodb.conf
+      search_string: bind_ip = 127.0.0.1
+      line: bind_ip = 0.0.0.0
+  handlers:
+  - name: restart mongodb
+    service: name=mongodb state=restarted
+```
+
+4. You can test if the config worked correctly with adhocs that will print the contents of the config file: `sudo ansible db -a "sudo cat /etc/mongod.conf"` and we should see that the bindIP has changed.
+- db is the name of our database instance in the hosts file
+
+![Alt text](bindip.png)
+
+# How to change environment variables with playbooks
+
+In the previous section we changed bindIP in the mongoDB config file. So, for our example for changing environment variables with playbooks, we will change **DB_HOST** environment variable in our app instance to `mongodb://<public IP for db instance>:27017/posts` then seed the database.
+
+1. Create a new playbook with an appropriate name. `sudo nano mongodb-env-seed.yml` will suffice.
+
+2. Codify the steps we need to change an environment variable. We will be using the **environment** keyword for this.
+- We also want `become: true` since we will need to execute this as superuser.
+
+```
+---
+- hosts: app
+  gather_facts: yes
+  become: true
+  tasks:
+    - name: Set environment var
+      environment:
+        DB_HOST: mongodb://34.252.133.230:27017/posts
+    - name: Seed db
+      command: node seeds/seed.js
+  handlers:
+    - name: restart nginx
+      service: name=nginx state=restarted
+```
+
+To start app:
+
+sudo ansible app -a "pm2 start /home/ubuntu/app/app/app.js"
