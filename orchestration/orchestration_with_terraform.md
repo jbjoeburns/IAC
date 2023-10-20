@@ -67,3 +67,134 @@ resource "aws_instance" "<name>" {
 7. Finally, once we're done with our instance, `terraform destroy` will terminate it.
 
 The advantage of this is that the entire process of creating and terminating instances can be fully automated, saving time and therefore money.
+
+Provisioning is then passed onto Ansible typically.
+
+# Using variable.tf
+
+Instead of defining the attributes of our instances in main.tf, which can be a security flaw if you were to upload these to GitHub. We can instead make use of a variable file.
+
+You do this by creating a new file called `variable.tf` then in this you define variables to call in main.tf using `var.<variable name>`.
+
+For example:
+
+variable.tf
+```
+variable "aws-region" {
+    default = "<region here>"
+}
+```
+
+main.tf
+```
+provider "aws" {
+	region = var.aws-region
+}
+```
+
+This functionally works the same as .env files in HTML/JS.
+
+# Setting up a VPC with Terraform
+
+To do this, Terraform will need to execute the following tasks to create what is pictured here:
+
+![Alt text](image-1.png)
+
+1. First we define the region and provider, as usual.
+
+```
+provider "<name>" {
+    region = <region var>
+}
+```
+
+2. To actually create the **VPC** we tell Terraform we want a VPC and what we want to name it. We can also include the `cidr_block` here.
+
+```
+resource "aws_vpc" "<name>" {
+  cidr_block = <put CIDR var here>
+
+  tags = {
+    Name = "<name>"
+  }
+}
+```
+
+3. Then we create the **subnet**. This is done in a similar way to the VPC, with you needing to define the `cidr_block`, but also the `vpc_id` which is the VPC we will attach this subnet to. We also need to define `map_public_ip_on_launch` as this tells terraform to assign a public IP or not, and the `availability_zone` in which the subnet resides. **We need to do this TWICE!**
+
+```
+resource "aws_subnet" "<name>" {
+  vpc_id     = <put VPC ID var here>
+  cidr_block = <put CIDR var here, within VPC range>
+  map_public_ip_on_launch = <put var for true/false here>
+  availability_zone = <az var here>
+
+  tags = {
+    Name = "<name>"
+  }
+}
+```
+
+4. Then we make the **internet gateway**. This is fairly standard as we only need the `vpc_id`, which automatically attaches this to our VPC.
+
+```
+resource "aws_internet_gateway" "<name>" {
+    vpc_id = <vpc ID var>
+
+    tags {
+        Name = "<name>"
+    }
+}
+```
+
+5. Create **public route table**, the private subnet uses the default route table like when we created a VPC manually. We define the `vpc_id` to attach to and the `route` to our `gateway_id` (internet gateway).
+
+```
+resource "aws_route_table" "<name>" {
+    vpc_id = <vpc ID var>
+    
+    route {
+        cidr_block = <var that defines 0.0.0.0/0, allowing all connections>
+        gateway_id = <IG ID var>
+    }
+    
+    tags {
+        Name = "<name>"
+    }
+}
+```
+
+6. Then we **associate the public subnet with our public RT** using `subnet_id` and `route_table_id` within the `aws_route_table_association` resource.
+
+```
+resource "aws_route_table_association" "<name>"{
+    subnet_id = <var with ID for public subnet>
+    route_table_id = <var with public RT ID>
+}
+```
+
+7. We also need to create the **security groups** seperately, for **BOTH** private and public subnets. We need to define each port in the security groups **seperately**, with `egress` which is the IPs to accept for a connection, and `ingress` which is the port that is open to connections. We can leave the protocol as **-1** and **TCP**, respectively, in most cases.
+
+```
+resource "aws_security_group" "<name>" {
+    vpc_id = <var for VPC ID>
+    
+    egress {
+        from_port = 0
+        to_port = 0
+        protocol = "-1"
+        cidr_blocks = [<var for accepted connections>]
+    }    
+    
+    ingress {
+        from_port = 22
+        to_port = 22
+        protocol = "tcp"
+        cidr_blocks = [<var for accepted connections>]
+    }
+
+    # Add more below!
+}
+```
+
+8. Then we create the two instances like we did in the example earlier in the doc! Though, we do need to define `subnet_id` here too unlike before.
