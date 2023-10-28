@@ -10,7 +10,7 @@
 
 4. [Advantages of IaC](#advantages-of-iac)
 
-5. [Links to Ansible and Terraform markdowns](#for-a-more-in-depth-looks-at-specific-tools-follow-the-links-beloww)
+5. [Links to Ansible and Terraform markdowns](#for-a-more-in-depth-looks-at-specific-tools-follow-the-links-below)
 
 # What is Infrastructure as Code
 
