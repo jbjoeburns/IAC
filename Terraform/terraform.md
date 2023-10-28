@@ -1,28 +1,42 @@
-# Why orchestration
+# Terraform
+
+## Table of contents:
+
+1. [Why use orchestration with Terraform](#why-use-orchestration-with-terraform)
+
+2. [How to do orchestration with Terraform](#how-to-do-orchestration-with-terraform)
+
+3. [How and why use a variable.tf file](#using-variabletf)
+
+4. [Setting up a VPC with Terraform](#setting-up-a-vpc-with-terraform)
+
+Additional resources:
+
+[Link to main.tf used to create a VPC](tech254-terraform/main.tf)
+
+[Link to example user data that could be used in Terraform to provision a newly created database instance](tech254-terraform/provision.sh)
+
+# Why use orchestration with Terraform
+
 Orchestration is essentially the practice of coordinating many processes in development at the same time.
 
 Coordinating multiple processes at once automatically helps complete a range of tasks all at the same time, saving time.
 
-# Why terraform
-Terraform allows you to make many changes to configuration/deployment across a range of different cloud providers all at the same time, esentially completing a task that would take days or weeks, all at once.
+Terraform allows you to make many changes to configuration/deployment of resources across a range of different cloud providers all at the same time, esentially completing a task that would take days or weeks, all at once. Additionally, it specifically lets you plan your changes to infrastructure then review these before deploying them and you only need to define how you want your infrastructure to look in the end using your config files, so dont need to define a laborious step by step process of commands, making it very easy to use.
 
-Terraform specifically lets you plan your changes to infrastructure then review these before deploying them.
-
-Additionally, you only need to define how you want your infrastructure to look in the end using your config files, so dont need to define a laborious step by step process.
-
-# How to do orchestration with terraform
-
-![Alt text](images/image.png)
+# How to do orchestration with Terraform
 
 Orcehstration with Terraform is a 3 step process. 
 
-This first involves defining your infrastructure such as contents of configuration files. 
+1. This first involves defining your infrastructure such as contents of configuration files. 
 
-Then reviewing the changes to make sure the actions performed are to your specifications.
+2. Then reviewing the changes to make sure the actions performed are to your specifications.
 
-And finally, applying these changes across a range of different instances and cloud providers.
+3. And finally, applying these changes across a range of different instances and cloud providers.
 
-# How to use terraform
+As illustrated in this diagram:
+
+![Alt text](images/image.png)
 
 Terraform uses files marked with the .tf file format to execute it's commands.
 
@@ -68,24 +82,26 @@ resource "aws_instance" "<name>" {
 
 The advantage of this is that the entire process of creating and terminating instances can be fully automated, saving time and therefore money.
 
-Provisioning is then passed onto Ansible typically.
+Provisioning is then passed onto Ansible typically, **though Terraform accepts user data and can run that too, notably to set up Ansible automatically**.
 
 # Using variable.tf
 
-Instead of defining the attributes of our instances in main.tf, which can be a security flaw if you were to upload these to GitHub. We can instead make use of a variable file.
+Instead of defining the attributes of our instances in main.tf, which can be a security flaw if you were to upload these to GitHub, since hackers can see what exact settings you used for your instances and therefore would find it easier to identify a point of attack. 
+
+Though, this can be overcome by making use of a variable file. This is essentially a file we will define in our .gitignore, and will contain the sensitive information as variables that can be then used in the publically viewable main.tf, obscuring their actual values behind variable names.
 
 You do this by creating a new file called `variable.tf` then in this you define variables to call in main.tf using `var.<variable name>`.
 
-For example:
+An example of how you could use variable.tf to hide sensitive information:
 
-variable.tf
+variable.tf (**not** viewable publicly)
 ```
 variable "aws-region" {
     default = "<region here>"
 }
 ```
 
-main.tf
+main.tf (viewable publicly)
 ```
 provider "aws" {
 	region = var.aws-region
@@ -95,6 +111,8 @@ provider "aws" {
 This functionally works the same as .env files in HTML/JS.
 
 # Setting up a VPC with Terraform
+
+As an example of how Terraform can be used to create any resource you could create manually, but instead automatically, we will use VPCs.
 
 To do this, Terraform will need to execute the following tasks to create what is pictured here:
 
@@ -198,3 +216,7 @@ resource "aws_security_group" "<name>" {
 ```
 
 8. Then we create the two instances like we did in the example earlier in the doc! Though, we do need to define `subnet_id` here too unlike before.
+
+This series of processes can be done for any resource you would like, not just VPCs.
+
+Terraform has particularly good documentation that can be used as a guideline to generate these resources: https://developer.hashicorp.com/terraform/docs
