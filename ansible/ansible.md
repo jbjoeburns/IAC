@@ -100,7 +100,7 @@ We should see something like this if the ping was successful
 
 - Can also see uname, date, etc… of agent `sudo ansible web -a "uname -a"`
 
-These short ansible commands like ping and the uname one are called **adhocs**.
+These short ansible commands like `ping` and the `uname` one are called **adhocs**.
 
 The main advantage to these are that they are short, simple commands that execute tasks used for testing/examining things and would therefore be inappropriate for a playbook, something we will talk about next.
 
@@ -110,11 +110,11 @@ Using an example, say if you wanted to power on all instances in Japan at 8am th
 
 These are a way to automate commands on the agents. Functionally Ansible scripts that will execute list of commands sequentially on the agent node.
 
-These are written in yaml and are a large reason why Ansible is so effective for automation.
+These are written in **yaml** and are a large reason why Ansible is so effective for automation.
 
-**REMEMBER! Indentations in yaml use TWO SPACES not tab!**
+**REMEMBER! Indentations in yaml use TWO SPACES not tab! They will not work if you use tab!**
 
-An example of how you make these playbooks (playbook to install nginx)...
+An example of how you make these playbooks. This playbook installs **nginx**...
 
 1. `sudo nano install-nginx.yml` lets you create a playbook file with nano
 
@@ -160,11 +160,13 @@ An example of how you make these playbooks (playbook to install nginx)...
 
 # Other useful playbooks
 
-**Remember to change the 'hosts' to the appropriate host in your case!**
+**Remember to change the 'hosts' variable in the playbook to the appropriate host in your case!**
+
+Playbook to install nginx is provided in the section above, and the one to change config files is provided in the next section.
 
 Blocker: If you get error `E:Malformed entry` then delete the offending file (it will be named in the error) on the agent.
 
-Playbook to do this:
+Playbook to delete files:
 ```
 ---
 - hosts: web
@@ -324,8 +326,10 @@ In the previous section we changed bindIP in the mongoDB config file. So, for ou
     service: name=mongodb state=restarted
 ```
 
+Now all of our infrastructure is set up. We can then create a bash script to run all of these playbooks sequentially and essentially provision the entire network in a single command!
+
+We dont need app starting functionality in our actual playbook, as this will be handled by tools like **Jenkins**, but if we wanted to start the app from the controller we could use the following.
+
 To start app:
 
 sudo ansible app -a "pm2 start /home/ubuntu/app/app/app.js"
-
-We dont need app starting functionality in our actual playbook, as this will be handled by tools like **Jenkins**.
