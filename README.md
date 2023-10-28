@@ -1,33 +1,56 @@
-﻿# Repo for Infrastructure as Code
+﻿# Repo for Infrastructure as Code (IaC)
 
-Using Ansible for IaC: https://github.com/jbjoeburns/IAC/blob/main/ansible/ansiblesetup.md
+## Table of contents:
 
-Orchestration with Terraform: https://github.com/jbjoeburns/IAC/blob/main/orchestration/orchestration_with_terraform.md
+1. [What is Infrastructure as Code](#what-is-infrastructure-as-code)
+
+2. [What is configuration management](#what-is-configuration-management)
+
+3. [What is orchestration](#what-is-orchestration)
+
+### This readme contains an overview of infrastructure as code, but for more in depth looks at specific tools follow the links below.
+
+<img src="images/image.png" alt="image.png" width="20"/> [Using **Ansible** for IaC](Ansible/ansible.md)
+
+<img src="images/image-1.png" alt="image-1.png" width="20"/> [Orchestration with **Terraform**](Terraform/terraform.md)
 
 # What is Infrastructure as Code
 
-Process of managing and provisioning infrastructure using code rather than doing it manually.
+**Definition**: The process of managing and provisioning infrastructure using code instead of doing it manually.
 
-This covers processes such as file management, installations, creating instances and more.
+In simplier terms, this essentially means **any processes in setting up and provisioning instances that would otherwise have been done manually can be done automatically**. This even allows you to provision, configure and update an entire network of instances automatically and all in the same way, ensuring consistancy and reducing room for human error. This is obviously extremely powerful.
 
-Managing infrastructure manually is like manually packaging boxes, IaC is like doing this using a machine that automatically packages things.
+IaC can automate processess such as:
+1. Creating virtual machines on the cloud
+- Including any configuration such as security groups and others
+2. Provisioning these virtual machines
+3. Altering configuration files and other file management
+4. And more!
 
+We can essentially automate the entire resource creation and provisioning process using IaC.
+
+![Alt text](images/diagram1.png)
 
 # What is configuration management
 
-This process can be part of an automation pipeline and speeds up deployment. Can even use programs such as Ansible to update instances or do other processes within them like changing config files or opening ports, provided the IPs and SSH credentials. This is called **configuration management**.
+**Definition**: The process in which systems are monitored and maintained through automated processes.
+
+Practially, this means using tools to update/configure virtual machines using tools such as Ansible to make sure a network of instances are up and running properly.
+
+Ansible in particular is extremely useful for this as it allows the process to be part of an automation pipeline to speed things up.
 
 # What is orchestration
 
-Orchestration is an aspect of IaC that focusses on managing and coordinating deployment automatically in multiple different systems at once. 
+**Definition**: Aspect of IaC that focusses on managing and coordinating deployment automatically in multiple different systems at once. 
 
-Essentially congifuration management but can be done on many instances over an entire ASG for example.
+This is typically done with Terraform, though other tools are available. Terraform allows us to define the resources we want to create in a script, then run this to automatically create the instances to our specifications.
 
-# Diagram of IaC setup
+# Advantages of IaC
 
-![ansiblescrsh.png](images/ansiblescrsh.png)
+1. Maintain consistancy between instances, as a single script is used to configure or provision many different instances in the same way.
 
-1. Master node for controlling/managing the others.
-2. This is our controller in Ansible, we can SSH into this. 
-3. These are our instances that Ansible connects to via SSH to do the configuration management, in this example this consists of one instance running the app using node and another running the database in mongodb. This is done automatically by Ansible as it is **agentless**.
-4. Ansible vault. This is where we save the keys for all of our instances so Ansible can SSH into them, and can even connect to any number of cloud providers using this process. 
+2. Lower chance for human error, as you're not manually creating resources over and over, and additionally the scripts, if well commented, are much easier to check for errors than manual deployment of resources.
+
+3. Faster at deploying and updating instances, as one singular script can be used to deploy a fleet of instances, and change their configuration too.
+
+4. **Financial benefits!** As the process of deploying instances is much faster, less paid employee time is spent on it and can be used on other projects.
