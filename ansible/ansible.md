@@ -1,24 +1,40 @@
-# Why use ansible?
+# Ansible
 
-Ansible is a powerful tool that allows you to connect to, and control many different instances at once and execute an automated list of commands using something called playbooks.
+## Table of contents:
 
-It is obvious why this is useful, not only can it be used to automate changes to config files/packages/files/etc, it also has the ability to do this to an entire web of servers automatically by reading a list of IPs from it's host file. However, it's primary practical use is to install packages/edit configs necessary for a deployment.
+1. [Why use Ansible](#why-use-ansible)
+
+2. [Setting up Ansible](#why-use-ansible)
+
+3. [Connecting with Ansible](#connecting-with-ansible)
+
+4. [What are playbooks and how do we use them?](#playbooks)
+
+5. [Other useful playbooks](#other-useful-playbooks)
+
+6. [Using playbooks for configuration](#using-playbooks-to-configure-files)
+
+# Why use Ansible?
+
+Ansible is a powerful tool that allows you to connect to, and control many different instances at once and execute an automated list of commands using scripts called **playbooks**.
+
+It is obvious why this is useful, not only can it be used to automate changes to config files/packages/files/etc, it also has the ability to do this to an entire network of instances, automatically, **by reading a list of IPs from it's 'hosts' file**. However, it's primary practical use is to install packages/edit configs necessary for a deployment.
 
 It has a range of other powerful uses, shown in the diagram below that illustrates the structure of an Ansible system.
 
-![Alt text](images/ansiblediag.png)
+![Alt text](images/diag2.png)
 
 # Setting up Ansible
 
-This is a step by step process for setting up Ansible.
+### This is a step by step process for installing and setting up Ansible, we cover how to connect to instances with it later.
 
-In this example we will be using an EC2 instance running ansible as the controller, an instance running node and a third instance with the database.
+In this example we will be using an EC2 instance running Ansible as the controller, an instance running our node test app and a third instance with the database it relies on.
 
 Setup steps for ansible:
 
-1. Connect to your EC2 instance
+1. Connect to your EC2 instance via SSH.
 
-2. Input the following commands...
+2. Input the following commands to update your packages and install Ansible...
 ```
 # checks if ansible installed
 ansible --version
@@ -38,30 +54,35 @@ sudo apt update -y
 sudo apt install ansible -y
 ```
 
-3. Open another git bash and type `scp -i "~/.ssh/tech254.pem" ~/.ssh/tech254.pem ubuntu@<instance IP>:~/.ssh` (change to include the IP of your instance) to provide Ansible with the AWS pem file so it can SSH into instances
-- **Remember to `chmod400` your pem file!**
+3. Open another git bash and type `scp -i "<filepath to pem file needed to connect to controller>" <filepath to pem file needed by controller to connect to instances> ubuntu@<controller IP>:~/.ssh` to securely copy the AWS pem file to the Ansible controller so it can SSH into instances.
+- **Remember to `chmod400` your pem file in the controller instance so Ansible can read it!**
 
-4. Optional step to install tree (just makes working with files easier) `sudo apt install tree -y`
+4. Optional step to install tree (makes working with files easier) with `sudo apt install tree -y`
 
 5. Check Ansible version with `ansible --version` and we should see something like this, confirming the install was successful!
 
 ![Alt text](images/ansibleversion.png)
 
-# Connecting with ansible
+# Connecting with Ansible
 
-Can connect to other instances while IN the ansible instance by using standard ssh commands, referencing the .pem file.
+Can connect to other instances while **in** the Ansible controller by using standard ssh commands to configure those instances, referencing the .pem file, but this is **not ideal**.
+
+The purprose of Ansible is to **not** have to manually ssh into other instances in the network, so instead we will **now configure the controller to be able to utilise something called **playbooks** instead to connect to instances and provision them**. We will go over the playbooks themselves later.
+
+![Alt text](images/playbooksvs.png)
 
 1. We need to provide info about our agents in the hosts file.
 
-Hosts file is in the directory `/etc/ansible/`
+- Hosts file is in the directory `/etc/ansible/` and can edit it with nano
 
-Then when in it, use `sudo nano hosts`
-
-2. Can add IP for who you want to ping in hosts. Can add one for the db too!
+2. Can add IP for who you want to ping in hosts. Can add one for the db too! Add this to the bottom of the hosts file.
 
 ```
 [app]
 ec2-instance-app ansible_host=<IP> ansible_user=ubuntu ansible_ssh_private_key_file=/home/ubuntu/.ssh/<pem file>
+
+[db]
+ec2-instance-db ansible_host=<IP> ansible_user=ubuntu ansible_ssh_private_key_file=/home/ubuntu/.ssh/<pem file>
 ```
 - `ec2-instance-<x>` Important that you put a name where x is or ansible will get confused about which instance to target, eg. app or db
 
@@ -71,7 +92,7 @@ ec2-instance-app ansible_host=<IP> ansible_user=ubuntu ansible_ssh_private_key_f
 
 - `ansible_ssh_private_key_file` denotes the location of the private key we need for ssh connections
 
-3. To test our connection we can ping our agent instance with `sudo ansible web -m ping`which returns an error if hosts not setup correctly.
+3. To test our connection we can ping our agent instance with the **adhoc command** `sudo ansible web -m ping` which returns an error if hosts not setup correctly.
 
 We should see something like this if the ping was successful
 
@@ -217,7 +238,11 @@ Install mongodb:
 
 Playbooks aren't exclusively used for installations. We can also use them to configure files.
 
-A good example of this is configuring the bindIP for mongoDB.
+As an example, we will **configure the bindIP for MongoDB**, so it knows from which connections to accept requests for database information, and we will also **add an environment variable to the app instance providing the database instance address**.
+
+This will allow us to send HTTP requests from the app, and retrieve database information as a response.
+
+### Configuring the bindIP for MongoDB.
 
 Pre-steps: Make sure to **make an instance for your mongoDB** that has ports **27017** and **22** open (for mongo and ssh respectively) and **install mongoDB** (the playbook for this is listed in the useful playbooks section of this document).
 
@@ -255,7 +280,7 @@ Pre-steps: Make sure to **make an instance for your mongoDB** that has ports **2
 
 ![Alt text](images/bindip.png)
 
-# How to change environment variables with playbooks
+### How to change environment variables with playbooks
 
 In the previous section we changed bindIP in the mongoDB config file. So, for our example for changing environment variables with playbooks, we will change **DB_HOST** environment variable in our app instance to `mongodb://<public IP for db instance>:27017/posts` then seed the database.
 
