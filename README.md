@@ -8,11 +8,9 @@
 
 3. [What is orchestration](#what-is-orchestration)
 
-### This readme contains an overview of infrastructure as code, but for more in depth looks at specific tools follow the links below.
+4. [Advantages of IaC](#advantages-of-iac)
 
-<img src="images/image.png" alt="image.png" width="20"/> [Using **Ansible** for IaC](Ansible/ansible.md)
-
-<img src="images/image-1.png" alt="image-1.png" width="20"/> [Orchestration with **Terraform**](Terraform/terraform.md)
+5. [Links to Ansible and Terraform markdowns](#for-a-more-in-depth-looks-at-specific-tools-follow-the-links-beloww)
 
 # What is Infrastructure as Code
 
@@ -54,3 +52,9 @@ This is typically done with Terraform, though other tools are available. Terrafo
 3. Faster at deploying and updating instances, as one singular script can be used to deploy a fleet of instances, and change their configuration too.
 
 4. **Financial benefits!** As the process of deploying instances is much faster, less paid employee time is spent on it and can be used on other projects.
+
+# For a more in depth looks at specific tools follow the links below.
+
+<img src="images/image.png" alt="image.png" width="20"/> [Using **Ansible** for IaC](Ansible/ansible.md)
+
+<img src="images/image-1.png" alt="image-1.png" width="20"/> [Orchestration with **Terraform**](Terraform/terraform.md)
