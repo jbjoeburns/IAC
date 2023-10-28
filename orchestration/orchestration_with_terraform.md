@@ -12,7 +12,7 @@ Additionally, you only need to define how you want your infrastructure to look i
 
 # How to do orchestration with terraform
 
-![Alt text](image.png)
+![Alt text](images/image.png)
 
 Orcehstration with Terraform is a 3 step process. 
 
@@ -98,7 +98,7 @@ This functionally works the same as .env files in HTML/JS.
 
 To do this, Terraform will need to execute the following tasks to create what is pictured here:
 
-![Alt text](image-1.png)
+![Alt text](images/image-1.png)
 
 1. First we define the region and provider, as usual.
 

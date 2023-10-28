@@ -6,7 +6,7 @@ It is obvious why this is useful, not only can it be used to automate changes to
 
 It has a range of other powerful uses, shown in the diagram below that illustrates the structure of an Ansible system.
 
-![Alt text](ansiblediag.png)
+![Alt text](images/ansiblediag.png)
 
 # Setting up Ansible
 
@@ -45,7 +45,7 @@ sudo apt install ansible -y
 
 5. Check Ansible version with `ansible --version` and we should see something like this, confirming the install was successful!
 
-![Alt text](ansibleversion.png)
+![Alt text](images/ansibleversion.png)
 
 # Connecting with ansible
 
@@ -75,7 +75,7 @@ ec2-instance-app ansible_host=<IP> ansible_user=ubuntu ansible_ssh_private_key_f
 
 We should see something like this if the ping was successful
 
-![Alt text](ping.png)
+![Alt text](images/ping.png)
 
 - Can also see uname, date, etc… of agent `sudo ansible web -a "uname -a"`
 
@@ -133,7 +133,7 @@ An example of how you make these playbooks (playbook to install nginx)...
 
 4. To run the playbook use `sudo ansible-playbook mongo-playbook.yml` and we should get an output like this, it shows that connection was ok and files were changed.
 
-![Alt text](completeprovision.png)
+![Alt text](images/completeprovision.png)
 
 5. To confirm 100%, you can check the status using adhoc commands! Eg. in the case of mongo you can use `sudo ansible web -a "sudo systemctl status mongodb"`
 
@@ -253,7 +253,7 @@ Pre-steps: Make sure to **make an instance for your mongoDB** that has ports **2
 4. You can test if the config worked correctly with adhocs that will print the contents of the config file: `sudo ansible db -a "sudo cat /etc/mongod.conf"` and we should see that the bindIP has changed.
 - db is the name of our database instance in the hosts file
 
-![Alt text](bindip.png)
+![Alt text](images/bindip.png)
 
 # How to change environment variables with playbooks
 
