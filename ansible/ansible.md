@@ -20,7 +20,7 @@ Ansible is a powerful tool that allows you to connect to, and control many diffe
 
 It is obvious why this is useful, not only can it be used to automate changes to config files/packages/files/etc, it also has the ability to do this to an entire network of instances, automatically, **by reading a list of IPs from it's 'hosts' file**. However, it's primary practical use is to install packages/edit configs necessary for a deployment.
 
-In this repo, I will demonstrate how we used ansible to provision a pre-made two-tier VPC entirely from the controller. The app instance had ports 22 (SSH), 80 (HTTP) and 3000 (NodeJS) open, and the database had ports 22 (SSH) and 27017 (MongoDB) open, as standard for a two tier architecture like this. This is a diagram illustrating what our controller was able to do.
+In this repo, I will demonstrate how we used ansible to provision a pre-made two-tier VPC entirely from the controller. The app instance had ports 22 (SSH), 80 (HTTP) and 3000 (NodeJS) open, and already had our application on the AMI used to build the instance, and the database tier had ports 22 (SSH) and 27017 (MongoDB) open, as standard for a two tier architecture like this. This is a diagram illustrating what our controller was able to do.
 
 ![Alt text](images/diag2.png)
 
