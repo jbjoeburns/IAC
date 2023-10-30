@@ -55,6 +55,6 @@ This is typically done with Terraform, though other tools are available. Terrafo
 
 # For a more in depth looks at how we used specific tools follow the links below.
 
-<img src="images/image.png" alt="image.png" width="20"/> [Using **Ansible** for IaC](Ansible/ansible.md)
+<img src="images/image.png" alt="image.png" width="20"/> [Using **Ansible** for IaC](ansible/ansible.md)
 
 <img src="images/image-1.png" alt="image-1.png" width="20"/> [Orchestration with **Terraform**](Terraform/terraform.md)
