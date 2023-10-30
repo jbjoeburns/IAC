@@ -133,7 +133,7 @@ An example of how you make these playbooks. We used this playbook to install **n
 ---
 # Starts with 3 dashes
 # Where to run/install?
-- hosts: web
+- hosts: app
 
 # provide logs
   gather_facts: yes
@@ -166,7 +166,7 @@ Blocker: If you get error `E:Malformed entry` then delete the offending file (it
 We used this **playbook to delete files** to fix the malformed entry error:
 ```
 ---
-- hosts: web
+- hosts: app
   gather_facts: yes
   become: true
   tasks:
