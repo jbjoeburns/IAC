@@ -53,7 +53,7 @@ This is typically done with Terraform, though other tools are available. Terrafo
 
 4. **Financial benefits!** As the process of deploying instances is much faster, less paid employee time is spent on it and can be used on other projects.
 
-# For a more in depth looks at specific tools follow the links below.
+# For a more in depth looks at how we used specific tools follow the links below.
 
 <img src="images/image.png" alt="image.png" width="20"/> [Using **Ansible** for IaC](Ansible/ansible.md)
 
